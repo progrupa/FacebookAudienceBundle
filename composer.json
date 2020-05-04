@@ -1,0 +1,19 @@
+{
+    "name":         "progrupa/facebook-audience-bundle",
+    "type":         "symfony-bundle",
+    "license":      "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Progrupa\\FacebookAudienceBundle\\": ""
+        }
+    },
+    "require": {
+        "php": ">= 7.2",
+        "facebook/graph-sdk": "^5.6",
+        "facebook/php-business-sdk": "^3.1"
+    },
+    "require-dev": {
+    },
+    "extra": {
+    }
+}
