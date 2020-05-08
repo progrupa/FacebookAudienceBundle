@@ -9,8 +9,7 @@
     },
     "require": {
         "php": ">= 7.2",
-        "facebook/graph-sdk": "^5.6",
-        "facebook/php-business-sdk": "^3.1"
+        "facebook/php-business-sdk": "^6.0"
     },
     "require-dev": {
     },
