@@ -3,13 +3,18 @@
 namespace Progrupa\FacebookAudienceBundle\Exporter;
 
 
+use FacebookAds\Cursor;
 use FacebookAds\Exception\Exception;
 use FacebookAds\Object\AdAccount;
+use FacebookAds\Object\AdRuleFilters;
 use FacebookAds\Object\CustomAudience;
+use FacebookAds\Object\Fields\AdRuleFiltersFields;
 use FacebookAds\Object\Fields\CustomAudienceFields;
+use FacebookAds\Object\Values\AdRuleFiltersOperatorValues;
 use FacebookAds\Object\Values\CustomAudienceCustomerFileSourceValues;
 use FacebookAds\Object\Values\CustomAudienceSubtypeValues;
 use FacebookAds\Object\Values\CustomAudienceTypes;
+use Progrupa\FacebookAudienceBundle\Exception\ProgrupaFacebookAudienceException;
 use Progrupa\FacebookAudienceBundle\Facebook\ApiInit;
 use Psr\Log\LoggerInterface;
 
@@ -44,7 +49,7 @@ class AudienceExporter
         $audience = $this->fetchAudience($audienceName);
 
         if (! $audience) {
-            throw new \InvalidArgumentException('Audience not found or could not be created, export aborted');
+            throw new ProgrupaFacebookAudienceException('Audience not found or could not be created, export aborted');
         }
 
         $audience->addUsers($emails, CustomAudienceTypes::EMAIL);
@@ -61,10 +66,19 @@ class AudienceExporter
 
         if (is_null($audience)) {
             try {
-                $audiences = $this->account->getCustomAudiences(
-                    [CustomAudienceFields::NAME, CustomAudienceFields::ID],
-                    [CustomAudienceFields::NAME => $audienceName]
-                );
+                /** @var Cursor $audiencesCursor */
+                $audiencesCursor = $this->account->getCustomAudiences([CustomAudienceFields::NAME, CustomAudienceFields::ID]);
+                $audiencesCursor->setUseImplicitFetch(true);
+
+                while ($audiencesCursor->valid()) {
+                    $audienceData = $audiencesCursor->current()->getData();
+                    if ($audienceData[CustomAudienceFields::NAME] == $audienceName) {
+                        $audience = $audiencesCursor->current();
+                        break;
+                    }
+
+                    $audiencesCursor->next();
+                }
             } catch (Exception $e) {
                 //  Search failed, audience was probably deleted
             }
@@ -73,7 +87,7 @@ class AudienceExporter
         if (is_null($audience)) {
             try {
                 $audience = $this->account->createCustomAudience(
-                    [],
+                    [CustomAudienceFields::NAME, CustomAudienceFields::ID],
                     [
                         CustomAudienceFields::SUBTYPE => CustomAudienceSubtypeValues::CUSTOM,
                         CustomAudienceFields::NAME => $audienceName,
@@ -81,6 +95,8 @@ class AudienceExporter
                         CustomAudienceFields::CUSTOMER_FILE_SOURCE => CustomAudienceCustomerFileSourceValues::USER_PROVIDED_ONLY,
                     ]
                 );
+
+                $this->audiences[$audienceName] = $audience;
             } catch (Exception $e) {
                 //  Fetch failed, audience was probably deleted
             }
