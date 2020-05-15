@@ -10,6 +10,7 @@ use FacebookAds\Object\AdRuleFilters;
 use FacebookAds\Object\CustomAudience;
 use FacebookAds\Object\Fields\AdRuleFiltersFields;
 use FacebookAds\Object\Fields\CustomAudienceFields;
+use FacebookAds\Object\Fields\CustomAudienceMultikeySchemaFields;
 use FacebookAds\Object\Values\AdRuleFiltersOperatorValues;
 use FacebookAds\Object\Values\CustomAudienceCustomerFileSourceValues;
 use FacebookAds\Object\Values\CustomAudienceSubtypeValues;
@@ -43,7 +44,13 @@ class AudienceExporter
         $this->logger = $logger;
     }
 
-    public function exportAudience($audienceName, $emails)
+    /**
+     * @param $audienceName
+     * @param $emails
+     * @param string|array $type
+     * @throws ProgrupaFacebookAudienceException
+     */
+    public function exportAudience($audienceName, $emails, $type)
     {
         $this->account = new AdAccount('act_' . $this->businessId);
         $audience = $this->fetchAudience($audienceName);
@@ -52,7 +59,12 @@ class AudienceExporter
             throw new ProgrupaFacebookAudienceException('Audience not found or could not be created, export aborted');
         }
 
-        $audience->addUsers($emails, CustomAudienceTypes::EMAIL);
+        if (is_array($type)) {
+            $audience->addUsersMultiKey($emails, $type);
+        }
+        else {
+            $audience->addUsers($emails, $type);
+        }
     }
 
     /**

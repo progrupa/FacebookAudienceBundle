@@ -4,7 +4,9 @@ namespace Progrupa\FacebookAudienceBundle\Command;
 
 use Progrupa\FacebookAudienceBundle\Exception\ProgrupaFacebookAudienceException;
 use Progrupa\FacebookAudienceBundle\Exporter\AudienceExporter;
+use Progrupa\FacebookAudienceBundle\Exporter\DataLoaderInterface;
 use Progrupa\FacebookAudienceBundle\Exporter\EmailLoaderInterface;
+use Progrupa\FacebookAudienceBundle\Exporter\MultiDataLoaderInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -13,7 +15,7 @@ abstract class AbstractAudienceExportCommand extends \Symfony\Component\Console\
 {
     /** @var AudienceExporter */
     private $exporter;
-    /** @var EmailLoaderInterface */
+    /** @var DataLoaderInterface */
     private $loader;
     /** @var LoggerInterface */
     private $logger;
@@ -21,10 +23,10 @@ abstract class AbstractAudienceExportCommand extends \Symfony\Component\Console\
     /**
      * AbstractAudienceExportCommand constructor.
      * @param AudienceExporter $exporter
-     * @param EmailLoaderInterface $loader
+     * @param DataLoaderInterface $loader
      * @param LoggerInterface $logger
      */
-    public function __construct(AudienceExporter $exporter, EmailLoaderInterface $loader, LoggerInterface $logger)
+    public function __construct(AudienceExporter $exporter, DataLoaderInterface $loader, LoggerInterface $logger)
     {
         $this->exporter = $exporter;
         $this->loader = $loader;
@@ -35,7 +37,7 @@ abstract class AbstractAudienceExportCommand extends \Symfony\Component\Console\
 
     protected function configure()
     {
-        $this->setDescription('Export email list as bussines audience to Facebook')
+        $this->setDescription('Export user list as bussines audience to Facebook')
             ->addOption('audience', 'a', InputOption::VALUE_REQUIRED, 'Exported audience ID')
         ;
     }
@@ -45,12 +47,15 @@ abstract class AbstractAudienceExportCommand extends \Symfony\Component\Console\
         $this->logger->notice("Starting...");
 
         $audience = $input->getOption('audience');
-        $emails = $this->loader->loadEmails($audience);
-        $this->logger->notice(sprintf("Found %d emails to export", count($emails)));
+
+        $data = $this->loader->loadData($audience);
+        $type = $this->loader->getType();
+
+        $this->logger->notice(sprintf("Found %d users to export", count($data)));
 
         try {
-            $this->exporter->exportAudience($audience, $emails);
-            $this->logger->notice(sprintf("Exported %d emails to %s audience", count($emails), $audience));
+            $this->exporter->exportAudience($audience, $data, $type);
+            $this->logger->notice(sprintf("Exported %d users to %s audience", count($data), $audience));
 
         } catch (ProgrupaFacebookAudienceException $exception) {
             $this->logger->error(sprintf("Audience export failed: %s", $exception->getMessage()));
