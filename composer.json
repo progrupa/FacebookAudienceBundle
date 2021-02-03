@@ -9,7 +9,7 @@
     },
     "require": {
         "php": ">= 7.2",
-        "facebook/php-business-sdk": "^6.0"
+        "facebook/php-business-sdk": "~9.0"
     },
     "require-dev": {
     },
