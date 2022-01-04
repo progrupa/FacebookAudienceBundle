@@ -1,10 +1,12 @@
 services:
+    Progrupa\FacebookAudienceBundle\Exporter\AudienceExporter: '@progrupa.facebook_audiences.exporter'
     progrupa.facebook_audiences.exporter:
         class: Progrupa\FacebookAudienceBundle\Exporter\AudienceExporter
         arguments:
             - '@progrupa.facebook_audiences.facebook_business_api_init'
             - '%progrupa.facebook_audience.business_id%'
             - '@logger'
+        public: true
 
     progrupa.facebook_audiences.facebook_business_api_init:
         class: Progrupa\FacebookAudienceBundle\Facebook\ApiInit
