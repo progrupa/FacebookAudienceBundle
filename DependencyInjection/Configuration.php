@@ -14,8 +14,10 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $treeBuilder->root('progrupa_facebook_audience')
+        $treeBuilder = new TreeBuilder('progrupa_facebook_audience');
+        $rootNode = $treeBuilder->getRootNode();
+        
+        $rootNode
             ->children()
                 ->scalarNode('client_id')->isRequired(true)->end()
                 ->scalarNode('client_secret')->isRequired(true)->end()
