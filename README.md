@@ -4,9 +4,9 @@ Symfony bundle for managing Facebook Custom Audiences using the Facebook Busines
 
 ## Requirements
 
-- PHP >= 8.0
+- PHP >= 7.2 (compatible with PHP 7.4 and PHP 8.x)
 - Symfony ^4.4 or ^5.0
-- Facebook Business SDK ^24.0
+- Facebook Business SDK ^15.0
 
 ## Installation
 
@@ -47,5 +47,5 @@ $this->exporter->exportAudience('My Audience Name', $emails, 'EMAIL');
 
 ## Version History
 
-- **v2.0**: Updated to Facebook Business SDK v24.0.1, requires PHP >= 8.0
+- **v2.0**: Updated to Facebook Business SDK v15.0.3, requires PHP >= 7.2 (compatible with PHP 7.4 and 8.x)
 - **v1.x**: Used Facebook Business SDK v9+, required PHP >= 7.2
