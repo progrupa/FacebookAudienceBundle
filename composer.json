@@ -9,7 +9,7 @@
     },
     "require": {
         "php": ">= 7.2",
-        "facebook/php-business-sdk": ">= 9",
+        "facebook/php-business-sdk": "^15.0",
         "symfony/config": "^4.4|^5.0",
         "symfony/console": "^4.4|^5.0",
         "symfony/dependency-injection": "^4.4|^5.0",
