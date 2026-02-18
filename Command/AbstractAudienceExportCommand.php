@@ -42,7 +42,7 @@ abstract class AbstractAudienceExportCommand extends \Symfony\Component\Console\
         ;
     }
 
-    protected function execute(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output)
+    protected function execute(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output): int
     {
         $this->logger->notice("Starting...");
 
@@ -59,8 +59,11 @@ abstract class AbstractAudienceExportCommand extends \Symfony\Component\Console\
 
         } catch (ProgrupaFacebookAudienceException $exception) {
             $this->logger->error(sprintf("Audience export failed: %s", $exception->getMessage()));
+            return self::FAILURE;
         }
 
         $this->logger->notice("Done!");
+
+        return self::SUCCESS;
     }
 }
