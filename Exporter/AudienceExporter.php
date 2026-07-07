@@ -92,7 +92,10 @@ class AudienceExporter
                     $audiencesCursor->next();
                 }
             } catch (Exception $e) {
-                //  Search failed, audience was probably deleted
+                $this->logger->warning(
+                    sprintf('Facebook audience lookup failed for "%s", will attempt to create it: %s', $audienceName, $this->redactTokens($e->getMessage())),
+                    ['exception' => $e]
+                );
             }
         }
 
@@ -110,10 +113,30 @@ class AudienceExporter
 
                 $this->audiences[$audienceName] = $audience;
             } catch (Exception $e) {
-                //  Fetch failed, audience was probably deleted
+                $message = $this->redactTokens($e->getMessage());
+
+                $this->logger->error(
+                    sprintf('Facebook audience creation failed for "%s": %s', $audienceName, $message),
+                    ['exception' => $e]
+                );
+
+                throw new ProgrupaFacebookAudienceException(
+                    sprintf('Could not create Facebook audience "%s": %s', $audienceName, $message),
+                    0,
+                    $e
+                );
             }
         }
 
         return $audience;
+    }
+
+    /**
+     * Facebook error messages echo the access token back. Strip it so the token
+     * never lands in application logs or propagated exception messages.
+     */
+    private function redactTokens(string $message): string
+    {
+        return preg_replace('/EAA[A-Za-z0-9]+/', 'EAA…[redacted]', $message);
     }
 }
